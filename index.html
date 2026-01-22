@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Home Kitchen Menu</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      min-height: 100vh;
+      background: url('https://images.unsplash.com/photo-1567600175325-3573c56bee05?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080') center/cover no-repeat fixed;
+    }
+    .overlay {
+      background: rgba(0,0,0,0.55);
+      min-height: 100vh;
+      padding: 40px 16px;
+    }
+    .container {
+      max-width: 900px;
+      margin: auto;
+    }
+    /* Header */
+    .header {
+      text-align: center;
+      color: #fff;
+      margin-bottom: 40px;
+    }
+    .icon {
+      background: linear-gradient(135deg, #fbbf24, #f97316);
+      width: 70px;
+      height: 70px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: auto;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+    }
+    .icon i {
+      font-size: 34px;
+      color: white;
+    }
+    h1 {
+      margin: 15px 0 5px;
+      font-size: 36px;
+    }
+    .subtitle {
+      color: #fde68a;
+    }
+    /* Menu Card */
+    .menu {
+      background: linear-gradient(135deg, rgba(255,251,235,0.98), rgba(255,237,213,0.98));
+      border-radius: 12px;
+      padding: 24px;
+      box-shadow: 0 15px 30px rgba(0,0,0,0.25);
+      border: 2px solid rgba(251,191,36,0.4);
+    }
+    .section {
+      margin-bottom: 30px;
+      padding: 15px;
+      border-radius: 10px;
+    }
+    .section h2 {
+      margin-top: 0;
+      margin-bottom: 15px;
+      font-size: 24px;
+    }
+    .blue { background: rgba(219,234,254,0.7); color: #1e3a8a; }
+    .blue-dark { background: rgba(191,219,254,0.7); color: #1e40af; }
+    .purple { background: rgba(233,213,255,0.7); color: #6b21a8; }
+    .purple-light { background: rgba(237,233,254,0.7); color: #7c3aed; }
+    .indigo { background: rgba(224,231,255,0.7); color: #001f3f; }
+    .item {
+      margin-bottom: 12px;
+    }
+    .item-title {
+      display: flex;
+      justify-content: space-between;
+      font-weight: bold;
+    }
+    .desc {
+      font-size: 14px;
+      opacity: 0.85;
+    }
+    /* Footer */
+    .footer {
+      text-align: center;
+      margin-top: 20px;
+      color: #fde68a;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="overlay">
+  <div class="container">
+
+    <!-- Header -->
+    <div class="header">
+      <div class="icon"><i class="fa-solid fa-utensils"></i></div>
+      <h1>Home Kitchen Menu</h1>
+      <p class="subtitle">Homely Meals • Made with Love</p>
+    </div>
+
+    <!-- Menu -->
+    <div class="menu">
+
+      <div class="section blue">
+        <h2>Starters</h2>
+        <div class="item">
+          <div class="item-title"><span>Veg Pakora</span><span>₹80</span></div>
+          <div class="desc">Crispy mixed vegetable fritters</div>
+        </div>
+        <div class="item">
+          <div class="item-title"><span>Paneer Tikka</span><span>₹120</span></div>
+          <div class="desc">Grilled cottage cheese with spices</div>
+        </div>
+      </div>
+
+      <div class="section blue-dark">
+        <h2>Main Course</h2>
+        <div class="item"><div class="item-title"><span>Dal Tadka</span><span>₹140</span></div><div class="desc">Yellow lentils tempered with spices</div></div>
+        <div class="item"><div class="item-title"><span>Butter Chicken</span><span>₹220</span></div><div class="desc">Creamy tomato curry with tender chicken</div></div>
+        <div class="item"><div class="item-title"><span>Paneer Butter Masala</span><span>₹180</span></div><div class="desc">Cottage cheese in rich tomato gravy</div></div>
+        <div class="item"><div class="item-title"><span>Veg Biryani</span><span>₹160</span></div><div class="desc">Fragrant rice with seasonal vegetables</div></div>
+      </div>
+
+      <div class="section purple">
+        <h2>Breads</h2>
+        <div class="item"><div class="item-title"><span>Butter Naan</span><span>₹40</span></div><div class="desc">Soft flatbread with butter</div></div>
+        <div class="item"><div class="item-title"><span>Garlic Naan</span><span>₹50</span></div><div class="desc">Naan topped with garlic</div></div>
+        <div class="item"><div class="item-title"><span>Tandoori Roti</span><span>₹30</span></div><div class="desc">Whole wheat flatbread</div></div>
+      </div>
+
+      <div class="section purple-light">
+        <h2>Desserts</h2>
+        <div class="item"><div class="item-title"><span>Gulab Jamun</span><span>₹60</span></div><div class="desc">Sweet milk dumplings in syrup</div></div>
+        <div class="item"><div class="item-title"><span>Ice Cream</span><span>₹80</span></div><div class="desc">Vanilla or chocolate</div></div>
+      </div>
+
+      <div class="section indigo">
+        <h2>Beverages</h2>
+        <div class="item"><div class="item-title"><span>Masala Chai</span><span>₹30</span></div><div class="desc">Spiced Indian tea</div></div>
+        <div class="item"><div class="item-title"><span>Sweet Lassi</span><span>₹50</span></div><div class="desc">Chilled yogurt drink</div></div>
+        <div class="item"><div class="item-title"><span>Fresh Lime Soda</span><span>₹40</span></div><div class="desc">Refreshing citrus drink</div></div>
+      </div>
+
+    </div>
+
+    <div class="footer">All prices are inclusive of taxes</div>
+
+  </div>
+</div>
+
+</body>
+</html>
