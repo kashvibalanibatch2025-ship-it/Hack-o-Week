@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WanderWave - Travel Blog</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, sans-serif;
+      background: #f8fafc;
+      color: #334155;
+    }
+
+    header {
+      background: linear-gradient(135deg, #0ea5e9, #38bdf8);
+      color: white;
+      padding: 18px 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    header h1 { margin: 0; font-size: 1.8rem; }
+
+    nav ul {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      gap: 20px;
+    }
+
+    nav a {
+      text-decoration: none;
+      color: white;
+      font-weight: 500;
+      transition: opacity 0.2s ease;
+    }
+
+    nav a:hover { opacity: 0.8; }
+
+    .hero {
+      background: url('https://picsum.photos/1600/700?travel') center/cover no-repeat;
+      height: 70vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      text-align: center;
+    }
+
+    .hero h2 {
+      font-size: 3rem;
+      margin: 0;
+      background: rgba(0,0,0,0.4);
+      padding: 15px 25px;
+      border-radius: 12px;
+    }
+
+    section {
+      padding: 60px 8%;
+    }
+
+    .section-title {
+      text-align: center;
+      margin-bottom: 40px;
+      font-size: 2rem;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 25px;
+    }
+
+    .card {
+      background: white;
+      border-radius: 14px;
+      overflow: hidden;
+      box-shadow: 0 6px 15px rgba(0,0,0,0.08);
+      transition: transform 0.3s ease;
+    }
+
+    .card:hover { transform: translateY(-6px); }
+
+    .card img {
+      width: 100%;
+      height: 180px;
+      object-fit: cover;
+    }
+
+    .card-content { padding: 16px; }
+
+    .card-content h3 { margin: 0 0 6px; }
+
+    .card-content p { margin: 0; font-size: 0.9rem; color: #64748b; }
+
+    footer {
+      background: #0f172a;
+      color: #cbd5f5;
+      text-align: center;
+      padding: 20px;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>WanderWave</h1>
+    <nav>
+      <ul>
+        <li><a href="#home">Home</a></li>
+        <li><a href="#destinations">Destinations</a></li>
+        <li><a href="#blog">Blog</a></li>
+        <li><a href="#about">About</a></li>
+        <li><a href="#contact">Contact</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <div class="hero" id="home">
+    <h2>Explore the World, One Journey at a Time</h2>
+  </div>
+
+  <section id="destinations">
+    <h2 class="section-title">Top Destinations</h2>
+    <div class="grid">
+      <div class="card">
+        <img src="https://picsum.photos/400/300?paris" />
+        <div class="card-content">
+          <h3>Paris</h3>
+          <p>The city of lights, love and culture.</p>
+        </div>
+      </div>
+
+      <div class="card">
+        <img src="https://picsum.photos/400/300?bali" />
+        <div class="card-content">
+          <h3>Bali</h3>
+          <p>Tropical paradise with stunning beaches.</p>
+        </div>
+      </div>
+
+      <div class="card">
+        <img src="https://picsum.photos/400/300?switzerland" />
+        <div class="card-content">
+          <h3>Switzerland</h3>
+          <p>Snowy mountains and scenic beauty.</p>
+        </div>
+      </div>
+
+      <div class="card">
+        <img src="https://picsum.photos/400/300?rajasthan" />
+        <div class="card-content">
+          <h3>Rajasthan</h3>
+          <p>Royal heritage and desert landscapes.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="blog">
+    <h2 class="section-title">Latest Blog Posts</h2>
+    <div class="grid">
+      <div class="card">
+        <img src="https://picsum.photos/400/300?mountains" />
+        <div class="card-content">
+          <h3>Hiking the Alps</h3>
+          <p>A breathtaking journey through snowy peaks.</p>
+        </div>
+      </div>
+
+      <div class="card">
+        <img src="https://picsum.photos/400/300?beach" />
+        <div class="card-content">
+          <h3>Beach Diaries</h3>
+          <p>Sun, sand, and sea therapy.</p>
+        </div>
+      </div>
+
+      <div class="card">
+        <img src="https://picsum.photos/400/300?city" />
+        <div class="card-content">
+          <h3>Urban Adventures</h3>
+          <p>Exploring vibrant cities around the world.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="about">
+    <h2 class="section-title">About Me</h2>
+    <p style="max-width:800px; margin:auto; text-align:center; line-height:1.6;">
+      Hi! I'm a passionate traveler sharing my journeys, experiences, and travel tips to inspire others to explore the world. Through WanderWave, I aim to capture moments, cultures, and stories from different corners of the globe.
+    </p>
+  </section>
+
+  <section id="contact">
+    <h2 class="section-title">Contact</h2>
+    <p style="text-align:center;">Email: travel@wanderwave.com | Instagram: @wanderwave</p>
+  </section>
+
+  <footer>
+    <p>© 2026 WanderWave Travel Blog | Designed with ❤️</p>
+  </footer>
+
+</body>
+</html>
