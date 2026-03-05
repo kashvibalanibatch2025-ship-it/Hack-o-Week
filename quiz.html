@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Class Quiz</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Fredoka+One&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --bg: #f0f4ff;
+      --card: #ffffff;
+      --primary: #4f46e5;
+      --primary-light: #818cf8;
+      --accent: #f59e0b;
+      --accent2: #10b981;
+      --danger: #ef4444;
+      --text: #1e1b4b;
+      --muted: #6b7280;
+      --radius: 18px;
+      --shadow: 0 8px 32px rgba(79,70,229,0.13);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Nunito', sans-serif;
+      background: var(--bg);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      background-image:
+        radial-gradient(circle at 10% 20%, rgba(129,140,248,0.18) 0%, transparent 40%),
+        radial-gradient(circle at 90% 80%, rgba(245,158,11,0.13) 0%, transparent 40%);
+    }
+
+    .quiz-wrapper {
+      width: 100%;
+      max-width: 700px;
+    }
+
+    /* ── Header ── */
+    .header {
+      text-align: center;
+      margin-bottom: 32px;
+      animation: fadeDown 0.6s ease both;
+    }
+    .header .badge {
+      display: inline-block;
+      background: var(--primary);
+      color: #fff;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      padding: 5px 16px;
+      border-radius: 100px;
+      margin-bottom: 12px;
+    }
+    .header h1 {
+      font-family: 'Fredoka One', cursive;
+      font-size: clamp(2rem, 5vw, 3rem);
+      color: var(--text);
+      line-height: 1.1;
+    }
+    .header h1 span { color: var(--primary); }
+    .header p {
+      color: var(--muted);
+      margin-top: 8px;
+      font-size: 15px;
+      font-weight: 600;
+    }
+
+    /* ── Progress ── */
+    .progress-bar-wrap {
+      background: #e0e7ff;
+      border-radius: 100px;
+      height: 10px;
+      margin-bottom: 28px;
+      overflow: hidden;
+      animation: fadeDown 0.6s 0.1s ease both;
+    }
+    .progress-bar {
+      height: 100%;
+      background: linear-gradient(90deg, var(--primary), var(--primary-light));
+      border-radius: 100px;
+      transition: width 0.5s cubic-bezier(.4,0,.2,1);
+    }
+    .progress-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--muted);
+      margin-bottom: 8px;
+      animation: fadeDown 0.6s 0.1s ease both;
+    }
+
+    /* ── Card ── */
+    .card {
+      background: var(--card);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 36px 40px;
+      animation: fadeUp 0.5s ease both;
+    }
+    @media(max-width:500px){ .card { padding: 24px 18px; } }
+
+    .question-num {
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--primary-light);
+      margin-bottom: 10px;
+    }
+    .question-text {
+      font-size: clamp(1.05rem, 2.5vw, 1.25rem);
+      font-weight: 800;
+      color: var(--text);
+      line-height: 1.5;
+      margin-bottom: 28px;
+    }
+
+    /* ── Options ── */
+    .options { display: flex; flex-direction: column; gap: 13px; }
+
+    .option {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 15px 20px;
+      border: 2.5px solid #e0e7ff;
+      border-radius: 13px;
+      cursor: pointer;
+      transition: all 0.22s ease;
+      background: #fafafe;
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text);
+      position: relative;
+      overflow: hidden;
+    }
+    .option:hover:not(.disabled) {
+      border-color: var(--primary-light);
+      background: #eef2ff;
+      transform: translateX(4px);
+    }
+    .option .bubble {
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      background: #e0e7ff;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px; font-weight: 900; color: var(--primary);
+      flex-shrink: 0;
+      transition: all 0.22s;
+    }
+    .option.selected {
+      border-color: var(--primary);
+      background: #eef2ff;
+    }
+    .option.selected .bubble {
+      background: var(--primary);
+      color: #fff;
+    }
+    .option.correct {
+      border-color: var(--accent2);
+      background: #ecfdf5;
+    }
+    .option.correct .bubble { background: var(--accent2); color: #fff; }
+    .option.wrong {
+      border-color: var(--danger);
+      background: #fef2f2;
+    }
+    .option.wrong .bubble { background: var(--danger); color: #fff; }
+    .option.disabled { cursor: default; }
+
+    /* ── Feedback ── */
+    .feedback {
+      margin-top: 20px;
+      padding: 14px 18px;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 700;
+      display: none;
+      align-items: center;
+      gap: 10px;
+    }
+    .feedback.show { display: flex; animation: pop 0.3s ease; }
+    .feedback.correct-fb { background: #ecfdf5; color: #065f46; }
+    .feedback.wrong-fb   { background: #fef2f2; color: #991b1b; }
+    .feedback .icon { font-size: 20px; }
+
+    /* ── Nav buttons ── */
+    .nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 30px;
+      gap: 12px;
+    }
+    .btn {
+      padding: 13px 28px;
+      border: none;
+      border-radius: 12px;
+      font-family: 'Nunito', sans-serif;
+      font-size: 15px;
+      font-weight: 800;
+      cursor: pointer;
+      transition: all 0.2s;
+      letter-spacing: 0.3px;
+    }
+    .btn-primary {
+      background: var(--primary);
+      color: #fff;
+      box-shadow: 0 4px 16px rgba(79,70,229,0.25);
+    }
+    .btn-primary:hover { background: #4338ca; transform: translateY(-2px); }
+    .btn-secondary {
+      background: #e0e7ff;
+      color: var(--primary);
+    }
+    .btn-secondary:hover { background: #c7d2fe; }
+    .btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+    /* ── Results ── */
+    .results {
+      display: none;
+      text-align: center;
+      animation: fadeUp 0.6s ease both;
+    }
+    .results.show { display: block; }
+    .results-emoji { font-size: 72px; margin-bottom: 16px; }
+    .results h2 {
+      font-family: 'Fredoka One', cursive;
+      font-size: 2.4rem;
+      color: var(--text);
+      margin-bottom: 8px;
+    }
+    .results .score-circle {
+      width: 130px; height: 130px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--primary), var(--primary-light));
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      margin: 24px auto;
+      box-shadow: 0 8px 32px rgba(79,70,229,0.25);
+      color: #fff;
+    }
+    .results .score-circle .big { font-size: 2.6rem; font-weight: 900; line-height: 1; }
+    .results .score-circle .small { font-size: 13px; font-weight: 700; opacity: 0.85; }
+    .results .grade-msg {
+      font-size: 16px; font-weight: 700; color: var(--muted);
+      margin-bottom: 28px;
+    }
+    .results .breakdown {
+      display: flex; justify-content: center; gap: 24px;
+      margin-bottom: 32px; flex-wrap: wrap;
+    }
+    .results .breakdown-item {
+      background: #f8faff;
+      border: 2px solid #e0e7ff;
+      border-radius: 12px;
+      padding: 14px 22px;
+      font-weight: 700;
+    }
+    .results .breakdown-item .num { font-size: 1.5rem; font-weight: 900; color: var(--primary); }
+    .results .breakdown-item .lbl { font-size: 12px; color: var(--muted); margin-top: 2px; }
+    .results .correct-num .num { color: var(--accent2); }
+    .results .wrong-num .num { color: var(--danger); }
+
+    /* ── Animations ── */
+    @keyframes fadeDown {
+      from { opacity: 0; transform: translateY(-16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes pop {
+      0%   { transform: scale(0.92); opacity: 0; }
+      100% { transform: scale(1);    opacity: 1; }
+    }
+
+    .quiz-content { display: block; }
+  </style>
+</head>
+<body>
+<div class="quiz-wrapper">
+
+  <!-- Header -->
+  <div class="header">
+    <div class="badge">📚 Class Quiz</div>
+    <h1>General Knowledge <span>Challenge</span></h1>
+    <p>Answer all 5 questions — good luck! 🌟</p>
+  </div>
+
+  <!-- Quiz Content -->
+  <div class="quiz-content" id="quizContent">
+    <div class="progress-label">
+      <span id="progressText">Question 1 of 5</span>
+      <span id="progressPercent">0%</span>
+    </div>
+    <div class="progress-bar-wrap">
+      <div class="progress-bar" id="progressBar" style="width:0%"></div>
+    </div>
+
+    <div class="card" id="quizCard">
+      <div class="question-num" id="questionNum">Question 1</div>
+      <div class="question-text" id="questionText"></div>
+      <div class="options" id="optionsContainer"></div>
+      <div class="feedback" id="feedback">
+        <span class="icon" id="feedbackIcon"></span>
+        <span id="feedbackText"></span>
+      </div>
+      <div class="nav">
+        <button class="btn btn-secondary" id="prevBtn" onclick="navigate(-1)">← Back</button>
+        <button class="btn btn-primary" id="nextBtn" onclick="navigate(1)">Next →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Results -->
+  <div class="results card" id="resultsCard">
+    <div class="results-emoji" id="resultsEmoji">🎉</div>
+    <h2 id="resultsTitle">Quiz Complete!</h2>
+    <div class="score-circle">
+      <div class="big" id="scoreDisplay">0/5</div>
+      <div class="small">Score</div>
+    </div>
+    <div class="grade-msg" id="gradeMsg"></div>
+    <div class="breakdown">
+      <div class="breakdown-item correct-num">
+        <div class="num" id="correctCount">0</div>
+        <div class="lbl">✅ Correct</div>
+      </div>
+      <div class="breakdown-item wrong-num">
+        <div class="num" id="wrongCount">0</div>
+        <div class="lbl">❌ Wrong</div>
+      </div>
+      <div class="breakdown-item">
+        <div class="num" id="percentScore">0%</div>
+        <div class="lbl">📊 Percentage</div>
+      </div>
+    </div>
+    <button class="btn btn-primary" onclick="restartQuiz()" style="width:100%;font-size:16px;padding:16px;">
+      🔄 Try Again
+    </button>
+  </div>
+
+</div>
+
+<script>
+  const questions = [
+    {
+      question: "What is the largest planet in our Solar System?",
+      options: ["Saturn", "Jupiter", "Neptune", "Uranus"],
+      answer: 1
+    },
+    {
+      question: "Which gas do plants absorb from the atmosphere during photosynthesis?",
+      options: ["Oxygen", "Nitrogen", "Carbon Dioxide", "Hydrogen"],
+      answer: 2
+    },
+    {
+      question: "How many continents are there on Earth?",
+      options: ["5", "6", "7", "8"],
+      answer: 2
+    },
+    {
+      question: "Who wrote the famous play 'Romeo and Juliet'?",
+      options: ["Charles Dickens", "William Shakespeare", "Jane Austen", "Homer"],
+      answer: 1
+    },
+    {
+      question: "What is the chemical symbol for water?",
+      options: ["WA", "H2O", "HO2", "W2O"],
+      answer: 1
+    }
+  ];
+
+  let current = 0;
+  let userAnswers = new Array(questions.length).fill(null);
+  let answered = new Array(questions.length).fill(false);
+
+  function renderQuestion() {
+    const q = questions[current];
+    const labels = ['A', 'B', 'C', 'D'];
+
+    document.getElementById('questionNum').textContent = `Question ${current + 1}`;
+    document.getElementById('questionText').textContent = q.question;
+
+    // Progress
+    const pct = Math.round((current / questions.length) * 100);
+    document.getElementById('progressBar').style.width = pct + '%';
+    document.getElementById('progressText').textContent = `Question ${current + 1} of ${questions.length}`;
+    document.getElementById('progressPercent').textContent = pct + '%';
+
+    // Options
+    const container = document.getElementById('optionsContainer');
+    container.innerHTML = '';
+    q.options.forEach((opt, i) => {
+      const btn = document.createElement('div');
+      btn.className = 'option' + (answered[current] ? ' disabled' : '');
+      btn.innerHTML = `<div class="bubble">${labels[i]}</div><span>${opt}</span>`;
+
+      if (answered[current]) {
+        if (i === q.answer) btn.classList.add('correct');
+        else if (i === userAnswers[current]) btn.classList.add('wrong');
+      } else if (userAnswers[current] === i) {
+        btn.classList.add('selected');
+      }
+
+      btn.addEventListener('click', () => selectOption(i));
+      container.appendChild(btn);
+    });
+
+    // Feedback
+    const fb = document.getElementById('feedback');
+    fb.className = 'feedback';
+    if (answered[current]) {
+      const correct = userAnswers[current] === q.answer;
+      fb.className = 'feedback show ' + (correct ? 'correct-fb' : 'wrong-fb');
+      document.getElementById('feedbackIcon').textContent = correct ? '✅' : '❌';
+      document.getElementById('feedbackText').textContent = correct
+        ? 'Correct! Well done!'
+        : `Not quite! The correct answer is: ${q.options[q.answer]}`;
+    }
+
+    // Buttons
+    document.getElementById('prevBtn').disabled = current === 0;
+    const nextBtn = document.getElementById('nextBtn');
+    if (current === questions.length - 1) {
+      nextBtn.textContent = '🏁 Finish';
+    } else {
+      nextBtn.textContent = 'Next →';
+    }
+    nextBtn.disabled = !answered[current];
+  }
+
+  function selectOption(i) {
+    if (answered[current]) return;
+    userAnswers[current] = i;
+    answered[current] = true;
+    document.getElementById('nextBtn').disabled = false;
+    renderQuestion();
+  }
+
+  function navigate(dir) {
+    if (dir === 1 && current === questions.length - 1) {
+      showResults(); return;
+    }
+    current = Math.max(0, Math.min(questions.length - 1, current + dir));
+    renderQuestion();
+  }
+
+  function showResults() {
+    document.getElementById('quizContent').style.display = 'none';
+    const resultsCard = document.getElementById('resultsCard');
+    resultsCard.classList.add('show');
+
+    const correct = userAnswers.filter((a, i) => a === questions[i].answer).length;
+    const wrong = questions.length - correct;
+    const pct = Math.round((correct / questions.length) * 100);
+
+    document.getElementById('scoreDisplay').textContent = `${correct}/${questions.length}`;
+    document.getElementById('correctCount').textContent = correct;
+    document.getElementById('wrongCount').textContent = wrong;
+    document.getElementById('percentScore').textContent = pct + '%';
+
+    const msgs = [
+      { emoji: '😅', title: 'Keep Practicing!', msg: 'Review your notes and give it another shot!' },
+      { emoji: '🙂', title: 'Getting There!',   msg: 'Good effort! A little more practice and you\'ll ace it.' },
+      { emoji: '😊', title: 'Nice Work!',        msg: 'You\'re doing well! Just a few more to nail.' },
+      { emoji: '🌟', title: 'Great Job!',        msg: 'Almost perfect! You clearly know your stuff.' },
+      { emoji: '🏆', title: 'Perfect Score!',    msg: 'Outstanding! You got every question right!' }
+    ];
+    const tier = correct === 5 ? 4 : correct === 4 ? 3 : correct === 3 ? 2 : correct <= 1 ? 0 : 1;
+    const m = msgs[tier];
+    document.getElementById('resultsEmoji').textContent = m.emoji;
+    document.getElementById('resultsTitle').textContent = m.title;
+    document.getElementById('gradeMsg').textContent = m.msg;
+  }
+
+  function restartQuiz() {
+    current = 0;
+    userAnswers = new Array(questions.length).fill(null);
+    answered = new Array(questions.length).fill(false);
+    document.getElementById('quizContent').style.display = 'block';
+    document.getElementById('resultsCard').classList.remove('show');
+    renderQuestion();
+  }
+
+  renderQuestion();
+</script>
+</body>
+</html>
