@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Multiple Line in Control</title>
+    <style>
+        body {
+            background-image: url('https://img.freepik.com/free-vector/detailed-hand-painted-pink-watercolour-background_1048-17039.jpg?semt=ais_incoming&w=740&q=80');
+            background-size: cover;
+            background-repeat: no-repeat;
+        }
+    </style>
+</head>
+<body>
+    <h1>REGISTRATION FOR EXTRACURRICULAR ACTIVITIES</h1>
+
+    <form>
+        <!-- Name -->
+        <label for="name">Enter your Name:</label><br>
+        <input type="text" id="name" name="name" placeholder="Enter Name Here..."><br><br>
+
+        <!-- PRN -->
+        <label for="prn">Enter your PRN Number:</label><br>
+        <input type="text" id="prn" name="prn" placeholder="Enter PRN here..."><br><br>
+
+        <!-- Activities -->
+        <p>What are your chosen extracurricular activities:</p>
+        <input type="checkbox" name="activity" value="Dance"> Dance <br>
+        <input type="checkbox" name="activity" value="Swimming"> Swimming <br>
+        <input type="checkbox" name="activity" value="Paint"> Paint <br>
+        <input type="radio" name="activity_option" value="None"> NONE <br>
+        <input type="radio" name="activity_option" value="All"> ALL OF THE ABOVE <br><br>
+
+        <!-- Semester -->
+        <p>Select your semester:</p>
+        <input type="radio" name="semester" value="1st"> 1st Sem
+        <input type="radio" name="semester" value="2nd"> 2nd Sem
+        <input type="radio" name="semester" value="3rd"> 3rd Sem
+        <input type="radio" name="semester" value="4th"> 4th Sem <br><br>
+
+        <!-- Section -->
+        <p>Section:</p>
+        <input type="radio" name="section" value="A"> A<br>
+        <input type="radio" name="section" value="B"> B<br>
+        <input type="radio" name="section" value="C"> C<br>
+        <input type="radio" name="section" value="D"> D<br><br>
+
+        <!-- Subject -->
+        <label for="subject">What is your main subject:</label><br>
+        <select name="subject" id="subject">
+            <option value="maths" selected>MATHS</option>
+            <option value="physics">PHYSICS</option>
+            <option value="chemistry">CHEMISTRY</option>
+            <option value="c_programming">PROGRAMMING IN C</option>
+            <option value="aptitude">APTITUDE AND REASONING</option>
+            <option value="writing">ACADEMIC WRITING SKILLS</option>
+            <option value="nano">NANO CHEMISTRY</option>
+            <option value="tinker">TINKER LAB</option>
+        </select><br><br>
+
+        <!-- File Upload -->
+        <label for="file">Upload your image:</label><br>
+        <input type="file" name="upload" accept="image/*"><br><br>
+
+        <!-- Submit & Reset -->
+        <input type="submit" value="Submit">
+        <input type="reset" value="Reset">
+    </form>
