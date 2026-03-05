@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>My Daily Planner</title>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;700;800&family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --bg: #0f0e17;
+      --surface: #1a1828;
+      --card: #211f33;
+      --border: rgba(255,255,255,0.07);
+      --text: #fffffe;
+      --muted: #a7a9be;
+
+      --c1: #ff6b6b; /* red-coral */
+      --c2: #ffd93d; /* yellow */
+      --c3: #6bcb77; /* green */
+      --c4: #4d96ff; /* blue */
+      --c5: #c77dff; /* purple */
+      --c6: #ff9a3c; /* orange */
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Quicksand', sans-serif;
+      background: var(--bg);
+      min-height: 100vh;
+      color: var(--text);
+      padding: 24px 16px 60px;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* Floating blobs background */
+    body::before, body::after {
+      content: '';
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(80px);
+      opacity: 0.18;
+      pointer-events: none;
+      z-index: 0;
+    }
+    body::before {
+      width: 500px; height: 500px;
+      background: radial-gradient(circle, var(--c5), var(--c4));
+      top: -150px; right: -100px;
+      animation: drift 12s ease-in-out infinite alternate;
+    }
+    body::after {
+      width: 400px; height: 400px;
+      background: radial-gradient(circle, var(--c1), var(--c2));
+      bottom: -120px; left: -80px;
+      animation: drift 15s ease-in-out infinite alternate-reverse;
+    }
+    @keyframes drift {
+      from { transform: translate(0,0) scale(1); }
+      to   { transform: translate(40px, 30px) scale(1.1); }
+    }
+
+    .container {
+      max-width: 680px;
+      margin: 0 auto;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* ── TOP HEADER ── */
+    .top-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 32px;
+      animation: slideDown 0.6s ease both;
+    }
+    .greeting-block h1 {
+      font-family: 'Baloo 2', cursive;
+      font-size: clamp(1.8rem, 5vw, 2.6rem);
+      font-weight: 800;
+      line-height: 1.1;
+    }
+    .greeting-block h1 .wave { display: inline-block; animation: wave 2s infinite; transform-origin: 70% 70%; }
+    @keyframes wave {
+      0%,100% { transform: rotate(0deg); }
+      20%      { transform: rotate(15deg); }
+      40%      { transform: rotate(-10deg); }
+      60%      { transform: rotate(12deg); }
+      80%      { transform: rotate(-5deg); }
+    }
+    .greeting-block .date-str {
+      font-size: 13px;
+      color: var(--muted);
+      font-weight: 600;
+      margin-top: 4px;
+    }
+    .stats-pill {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+    .stat {
+      background: var(--card);
+      border: 1.5px solid var(--border);
+      border-radius: 50px;
+      padding: 8px 16px;
+      text-align: center;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--muted);
+    }
+    .stat .num {
+      display: block;
+      font-size: 1.3rem;
+      font-weight: 800;
+      color: var(--text);
+      line-height: 1;
+    }
+
+    /* ── PROGRESS RING STRIP ── */
+    .progress-strip {
+      background: var(--card);
+      border: 1.5px solid var(--border);
+      border-radius: 16px;
+      padding: 18px 22px;
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      margin-bottom: 28px;
+      animation: slideDown 0.6s 0.1s ease both;
+      opacity: 0; animation-fill-mode: forwards;
+    }
+    .ring-wrap { position: relative; flex-shrink: 0; }
+    .ring-wrap svg { transform: rotate(-90deg); }
+    .ring-wrap .ring-bg { fill: none; stroke: rgba(255,255,255,0.08); stroke-width: 6; }
+    .ring-wrap .ring-fg {
+      fill: none;
+      stroke-width: 6;
+      stroke-linecap: round;
+      stroke: url(#ringGrad);
+      transition: stroke-dashoffset 0.8s cubic-bezier(.4,0,.2,1);
+    }
+    .ring-pct {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      font-weight: 800;
+      color: var(--text);
+    }
+    .progress-text h3 {
+      font-family: 'Baloo 2', cursive;
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+    .progress-text p { font-size: 13px; color: var(--muted); font-weight: 600; }
+    .progress-bar-row {
+      flex: 1;
+      background: rgba(255,255,255,0.07);
+      border-radius: 100px;
+      height: 8px;
+      overflow: hidden;
+      margin-top: 10px;
+    }
+    .progress-bar-fill {
+      height: 100%;
+      border-radius: 100px;
+      background: linear-gradient(90deg, var(--c4), var(--c5), var(--c1));
+      transition: width 0.8s cubic-bezier(.4,0,.2,1);
+    }
+
+    /* ── CATEGORIES ── */
+    .cat-row {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 22px;
+      overflow-x: auto;
+      padding-bottom: 4px;
+      scrollbar-width: none;
+      animation: slideDown 0.6s 0.15s ease both;
+      opacity: 0; animation-fill-mode: forwards;
+    }
+    .cat-row::-webkit-scrollbar { display: none; }
+    .cat-btn {
+      flex-shrink: 0;
+      padding: 8px 18px;
+      border-radius: 100px;
+      border: 2px solid transparent;
+      font-family: 'Quicksand', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+      background: var(--card);
+      color: var(--muted);
+      border-color: var(--border);
+    }
+    .cat-btn.active, .cat-btn:hover {
+      color: #fff;
+      transform: translateY(-2px);
+    }
+    .cat-btn[data-cat="all"].active    { background: linear-gradient(135deg,var(--c4),var(--c5)); border-color: transparent; }
+    .cat-btn[data-cat="morning"].active { background: linear-gradient(135deg,var(--c2),var(--c6)); border-color: transparent; color: #0f0e17; }
+    .cat-btn[data-cat="work"].active   { background: linear-gradient(135deg,var(--c4),#00d4ff); border-color: transparent; }
+    .cat-btn[data-cat="health"].active { background: linear-gradient(135deg,var(--c3),#00d4aa); border-color: transparent; }
+    .cat-btn[data-cat="personal"].active { background: linear-gradient(135deg,var(--c5),var(--c1)); border-color: transparent; }
+
+    /* ── ADD TASK ── */
+    .add-box {
+      background: var(--card);
+      border: 1.5px solid var(--border);
+      border-radius: 16px;
+      padding: 16px 18px;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 22px;
+      animation: slideDown 0.6s 0.2s ease both;
+      opacity: 0; animation-fill-mode: forwards;
+      flex-wrap: wrap;
+    }
+    .add-box input[type="text"] {
+      flex: 1;
+      min-width: 160px;
+      background: transparent;
+      border: none;
+      outline: none;
+      color: var(--text);
+      font-family: 'Quicksand', sans-serif;
+      font-size: 15px;
+      font-weight: 600;
+      placeholder-color: var(--muted);
+    }
+    .add-box input::placeholder { color: var(--muted); }
+    .add-box select {
+      background: rgba(255,255,255,0.07);
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-family: 'Quicksand', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      padding: 6px 10px;
+      outline: none;
+      cursor: pointer;
+    }
+    .add-box select option { background: #211f33; }
+    .add-btn {
+      background: linear-gradient(135deg, var(--c4), var(--c5));
+      border: none;
+      border-radius: 10px;
+      color: #fff;
+      font-family: 'Baloo 2', cursive;
+      font-size: 22px;
+      font-weight: 700;
+      width: 40px; height: 40px;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: transform 0.2s, box-shadow 0.2s;
+      flex-shrink: 0;
+    }
+    .add-btn:hover { transform: scale(1.1) rotate(5deg); box-shadow: 0 4px 20px rgba(77,150,255,0.4); }
+
+    /* ── TASK LIST ── */
+    .section-label {
+      font-family: 'Baloo 2', cursive;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 12px;
+      padding-left: 4px;
+    }
+
+    #taskList { display: flex; flex-direction: column; gap: 10px; }
+
+    .task-item {
+      background: var(--card);
+      border: 1.5px solid var(--border);
+      border-radius: 14px;
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      transition: transform 0.2s, box-shadow 0.2s, opacity 0.3s;
+      animation: popIn 0.35s ease both;
+      position: relative;
+      overflow: hidden;
+    }
+    .task-item::before {
+      content: '';
+      position: absolute;
+      left: 0; top: 0; bottom: 0;
+      width: 4px;
+      border-radius: 4px 0 0 4px;
+    }
+    .task-item[data-cat="morning"]::before { background: linear-gradient(var(--c2), var(--c6)); }
+    .task-item[data-cat="work"]::before    { background: linear-gradient(var(--c4), #00d4ff); }
+    .task-item[data-cat="health"]::before  { background: linear-gradient(var(--c3), #00d4aa); }
+    .task-item[data-cat="personal"]::before{ background: linear-gradient(var(--c5), var(--c1)); }
+
+    .task-item:hover { transform: translateX(4px); box-shadow: 0 4px 24px rgba(0,0,0,0.25); }
+
+    .task-item.done { opacity: 0.5; }
+    .task-item.done .task-text { text-decoration: line-through; color: var(--muted); }
+
+    .check-btn {
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      border: 2.5px solid rgba(255,255,255,0.2);
+      background: transparent;
+      cursor: pointer;
+      flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      transition: all 0.25s;
+      font-size: 14px;
+    }
+    .task-item.done .check-btn {
+      background: var(--c3);
+      border-color: var(--c3);
+    }
+    .task-item[data-cat="morning"] .check-btn:hover { border-color: var(--c2); }
+    .task-item[data-cat="work"]    .check-btn:hover { border-color: var(--c4); }
+    .task-item[data-cat="health"]  .check-btn:hover { border-color: var(--c3); }
+    .task-item[data-cat="personal"].check-btn:hover { border-color: var(--c5); }
+
+    .task-body { flex: 1; min-width: 0; }
+    .task-text {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .task-meta {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      margin-top: 4px;
+    }
+    .cat-tag {
+      font-size: 11px;
+      font-weight: 700;
+      padding: 2px 9px;
+      border-radius: 100px;
+      letter-spacing: 0.5px;
+    }
+    .cat-tag.morning  { background: rgba(255,217,61,0.15);  color: var(--c2); }
+    .cat-tag.work     { background: rgba(77,150,255,0.15);  color: var(--c4); }
+    .cat-tag.health   { background: rgba(107,203,119,0.15); color: var(--c3); }
+    .cat-tag.personal { background: rgba(199,125,255,0.15); color: var(--c5); }
+
+    .task-time {
+      font-size: 11px;
+      color: var(--muted);
+      font-weight: 600;
+    }
+
+    .del-btn {
+      background: transparent;
+      border: none;
+      color: rgba(255,255,255,0.2);
+      font-size: 18px;
+      cursor: pointer;
+      padding: 4px;
+      transition: color 0.2s, transform 0.2s;
+      flex-shrink: 0;
+    }
+    .del-btn:hover { color: var(--c1); transform: scale(1.2); }
+
+    @keyframes popIn {
+      from { opacity: 0; transform: translateY(10px) scale(0.97); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    @keyframes slideDown {
+      from { opacity: 0; transform: translateY(-14px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* empty state */
+    .empty-state {
+      text-align: center;
+      padding: 48px 20px;
+      color: var(--muted);
+      font-size: 15px;
+      font-weight: 600;
+      display: none;
+    }
+    .empty-state .emoji { font-size: 48px; display: block; margin-bottom: 12px; }
+
+    /* ── MOTIVATIONAL FOOTER ── */
+    .footer-quote {
+      text-align: center;
+      margin-top: 40px;
+      font-size: 13px;
+      color: rgba(167,169,190,0.5);
+      font-weight: 600;
+      font-style: italic;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <!-- Header -->
+  <div class="top-header">
+    <div class="greeting-block">
+      <h1><span class="wave">👋</span> Hey, Champ!</h1>
+      <div class="date-str" id="dateStr"></div>
+    </div>
+    <div class="stats-pill">
+      <div class="stat"><span class="num" id="statTotal">0</span>Tasks</div>
+      <div class="stat"><span class="num" id="statDone">0</span>Done</div>
+      <div class="stat"><span class="num" id="statLeft">0</span>Left</div>
+    </div>
+  </div>
+
+  <!-- Progress Strip -->
+  <div class="progress-strip">
+    <div class="ring-wrap">
+      <svg width="60" height="60" viewBox="0 0 60 60">
+        <defs>
+          <linearGradient id="ringGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#4d96ff"/>
+            <stop offset="100%" stop-color="#c77dff"/>
+          </linearGradient>
+        </defs>
+        <circle class="ring-bg" cx="30" cy="30" r="24"/>
+        <circle class="ring-fg" id="ringFg" cx="30" cy="30" r="24"
+          stroke-dasharray="150.8" stroke-dashoffset="150.8"/>
+      </svg>
+      <div class="ring-pct" id="ringPct">0%</div>
+    </div>
+    <div class="progress-text" style="flex:1">
+      <h3 id="progressTitle">Let's get started! 🚀</h3>
+      <p id="progressSub">Add your tasks for today below</p>
+      <div class="progress-bar-row">
+        <div class="progress-bar-fill" id="progressBarFill" style="width:0%"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Category Filter -->
+  <div class="cat-row">
+    <button class="cat-btn active" data-cat="all">🌈 All</button>
+    <button class="cat-btn" data-cat="morning">☀️ Morning</button>
+    <button class="cat-btn" data-cat="work">💼 Work</button>
+    <button class="cat-btn" data-cat="health">💪 Health</button>
+    <button class="cat-btn" data-cat="personal">🌟 Personal</button>
+  </div>
+
+  <!-- Add Task -->
+  <div class="add-box">
+    <input type="text" id="taskInput" placeholder="Add a new task..." maxlength="80"/>
+    <select id="catSelect">
+      <option value="morning">☀️ Morning</option>
+      <option value="work">💼 Work</option>
+      <option value="health">💪 Health</option>
+      <option value="personal">🌟 Personal</option>
+    </select>
+    <button class="add-btn" id="addBtn" title="Add task">+</button>
+  </div>
+
+  <!-- Task List -->
+  <div class="section-label">Today's Tasks</div>
+  <div id="taskList"></div>
+  <div class="empty-state" id="emptyState">
+    <span class="emoji">🎯</span>
+    No tasks here yet — add something to get going!
+  </div>
+
+  <div class="footer-quote" id="footerQuote"></div>
+</div>
+
+<script>
+  const quotes = [
+    "\"The secret of getting ahead is getting started.\" — Mark Twain",
+    "\"Done is better than perfect.\" — Sheryl Sandberg",
+    "\"Focus on being productive instead of busy.\" — Tim Ferriss",
+    "\"One task at a time. That's how mountains move.\"",
+    "\"Small steps every day lead to big results.\"",
+    "\"You've got this. One checkbox at a time. ✅\""
+  ];
+  document.getElementById('footerQuote').textContent = quotes[Math.floor(Math.random() * quotes.length)];
+
+  // Date
+  const now = new Date();
+  document.getElementById('dateStr').textContent = now.toLocaleDateString('en-US', { weekday:'long', month:'long', day:'numeric', year:'numeric' });
+
+  // Default tasks
+  let tasks = JSON.parse(localStorage.getItem('vibrant_tasks') || 'null') || [
+    { id: 1, text: "Morning workout (30 min)", cat: "health",   done: false, time: "6:00 AM" },
+    { id: 2, text: "Drink 2 glasses of water", cat: "health",   done: false, time: "7:00 AM" },
+    { id: 3, text: "Review emails & messages",  cat: "work",     done: false, time: "8:30 AM" },
+    { id: 4, text: "Team standup meeting",       cat: "work",     done: false, time: "9:00 AM" },
+    { id: 5, text: "Healthy breakfast",          cat: "morning",  done: false, time: "7:30 AM" },
+    { id: 6, text: "Plan the day's priorities",  cat: "morning",  done: false, time: "8:00 AM" },
+    { id: 7, text: "Call mom / family check-in", cat: "personal", done: false, time: "12:00 PM" },
+    { id: 8, text: "30-min lunch walk",          cat: "health",   done: false, time: "1:00 PM" },
+  ];
+
+  let filterCat = 'all';
+  let nextId = tasks.length + 10;
+
+  function save() { localStorage.setItem('vibrant_tasks', JSON.stringify(tasks)); }
+
+  function getTime() {
+    return now.toLocaleTimeString('en-US', { hour:'2-digit', minute:'2-digit' });
+  }
+
+  function updateStats() {
+    const total = tasks.length;
+    const done  = tasks.filter(t => t.done).length;
+    const left  = total - done;
+    const pct   = total === 0 ? 0 : Math.round((done / total) * 100);
+
+    document.getElementById('statTotal').textContent = total;
+    document.getElementById('statDone').textContent  = done;
+    document.getElementById('statLeft').textContent  = left;
+    document.getElementById('ringPct').textContent   = pct + '%';
+    document.getElementById('progressBarFill').style.width = pct + '%';
+
+    const circ = 2 * Math.PI * 24;
+    const offset = circ - (pct / 100) * circ;
+    document.getElementById('ringFg').style.strokeDashoffset = offset;
+
+    const titles = [
+      [0,  "Let's get started! 🚀",    "Add your tasks for today below"],
+      [1,  "Great start! Keep going 💫", `${done} of ${total} tasks complete`],
+      [40, "Halfway there! 🔥",         `${done} of ${total} tasks complete`],
+      [70, "Almost done! 🏃",           `${done} of ${total} tasks complete`],
+      [100,"All done! You crushed it 🎉",`Every single task completed!`]
+    ];
+    let t = titles[0];
+    for (const [threshold, title, sub] of titles) {
+      if (pct >= threshold) t = [threshold, title, sub];
+    }
+    document.getElementById('progressTitle').textContent = t[1];
+    document.getElementById('progressSub').textContent   = t[2];
+  }
+
+  function render() {
+    const list = document.getElementById('taskList');
+    const empty = document.getElementById('emptyState');
+    const filtered = filterCat === 'all' ? tasks : tasks.filter(t => t.cat === filterCat);
+
+    list.innerHTML = '';
+    if (filtered.length === 0) {
+      empty.style.display = 'block';
+    } else {
+      empty.style.display = 'none';
+      filtered.forEach((task, idx) => {
+        const el = document.createElement('div');
+        el.className = 'task-item' + (task.done ? ' done' : '');
+        el.dataset.cat = task.cat;
+        el.style.animationDelay = (idx * 0.05) + 's';
+        el.innerHTML = `
+          <button class="check-btn" onclick="toggle(${task.id})">${task.done ? '✓' : ''}</button>
+          <div class="task-body">
+            <div class="task-text">${escHtml(task.text)}</div>
+            <div class="task-meta">
+              <span class="cat-tag ${task.cat}">${catLabel(task.cat)}</span>
+              <span class="task-time">${task.time}</span>
+            </div>
+          </div>
+          <button class="del-btn" onclick="remove(${task.id})" title="Delete">×</button>
+        `;
+        list.appendChild(el);
+      });
+    }
+    updateStats();
+    save();
+  }
+
+  function catLabel(c) {
+    return { morning:'☀️ Morning', work:'💼 Work', health:'💪 Health', personal:'🌟 Personal' }[c] || c;
+  }
+  function escHtml(s) {
+    return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  function toggle(id) {
+    const t = tasks.find(t => t.id === id);
+    if (t) { t.done = !t.done; render(); }
+  }
+  function remove(id) {
+    tasks = tasks.filter(t => t.id !== id);
+    render();
+  }
+
+  function addTask() {
+    const input = document.getElementById('taskInput');
+    const cat   = document.getElementById('catSelect').value;
+    const text  = input.value.trim();
+    if (!text) { input.focus(); return; }
+    tasks.unshift({ id: ++nextId, text, cat, done: false, time: getTime() });
+    input.value = '';
+    filterCat = 'all';
+    document.querySelectorAll('.cat-btn').forEach(b => b.classList.toggle('active', b.dataset.cat === 'all'));
+    render();
+    input.focus();
+  }
+
+  document.getElementById('addBtn').addEventListener('click', addTask);
+  document.getElementById('taskInput').addEventListener('keydown', e => { if (e.key === 'Enter') addTask(); });
+
+  document.querySelectorAll('.cat-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      filterCat = btn.dataset.cat;
+      document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      render();
+    });
+  });
+
+  render();
+</script>
+</body>
+</html>
