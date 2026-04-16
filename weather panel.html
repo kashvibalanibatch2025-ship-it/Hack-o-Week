@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Weather Panel</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0a0e1a;
+    --surface: #111827;
+    --border: rgba(255,255,255,0.06);
+    --text: #e8eaf0;
+    --muted: #6b7280;
+    --accent-1: #60a5fa;
+    --accent-2: #f59e0b;
+    --accent-3: #34d399;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* Atmospheric background */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 60% 40% at 20% 20%, rgba(96,165,250,0.07) 0%, transparent 60%),
+      radial-gradient(ellipse 50% 50% at 80% 80%, rgba(52,211,153,0.06) 0%, transparent 60%),
+      radial-gradient(ellipse 40% 30% at 60% 10%, rgba(245,158,11,0.05) 0%, transparent 50%);
+    pointer-events: none;
+  }
+
+  /* Noise grain overlay */
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    opacity: 0.025;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+    pointer-events: none;
+  }
+
+  .wrapper {
+    width: 100%;
+    max-width: 960px;
+    position: relative;
+    z-index: 1;
+  }
+
+  header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: 2.5rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--border);
+    animation: fadeDown 0.6s ease both;
+  }
+
+  .logo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2.4rem;
+    letter-spacing: 0.08em;
+    line-height: 1;
+    color: var(--text);
+  }
+
+  .logo span { color: var(--accent-1); }
+
+  .date-time {
+    text-align: right;
+    font-size: 0.78rem;
+    color: var(--muted);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .date-time strong {
+    display: block;
+    font-size: 1rem;
+    color: var(--text);
+    font-weight: 500;
+    margin-top: 2px;
+    letter-spacing: 0;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.25rem;
+  }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 1.8rem;
+    position: relative;
+    overflow: hidden;
+    cursor: default;
+    transition: transform 0.3s ease, border-color 0.3s ease;
+    animation: fadeUp 0.6s ease both;
+  }
+
+  .card:nth-child(1) { animation-delay: 0.1s; --accent: var(--accent-1); }
+  .card:nth-child(2) { animation-delay: 0.2s; --accent: var(--accent-2); }
+  .card:nth-child(3) { animation-delay: 0.3s; --accent: var(--accent-3); }
+
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: var(--accent);
+    opacity: 0.7;
+    border-radius: 20px 20px 0 0;
+  }
+
+  .card:hover {
+    transform: translateY(-4px);
+    border-color: rgba(255,255,255,0.12);
+  }
+
+  .card-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1.5rem;
+  }
+
+  .city {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.7rem;
+    letter-spacing: 0.05em;
+    line-height: 1;
+    color: var(--text);
+  }
+
+  .country {
+    font-size: 0.72rem;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-top: 4px;
+  }
+
+  .condition-icon {
+    font-size: 2.6rem;
+    line-height: 1;
+    filter: drop-shadow(0 0 8px rgba(255,255,255,0.15));
+  }
+
+  .temp-row {
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+    margin-bottom: 1.2rem;
+  }
+
+  .temp {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 4rem;
+    letter-spacing: -0.02em;
+    line-height: 1;
+    color: var(--accent);
+  }
+
+  .temp-unit {
+    font-size: 1.4rem;
+    color: var(--muted);
+    font-weight: 300;
+    margin-bottom: 4px;
+  }
+
+  .condition-label {
+    font-size: 0.85rem;
+    color: var(--text);
+    font-weight: 500;
+    margin-bottom: 1.5rem;
+    opacity: 0.8;
+  }
+
+  .divider {
+    height: 1px;
+    background: var(--border);
+    margin-bottom: 1.2rem;
+  }
+
+  .stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.8rem;
+  }
+
+  .stat {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .stat-label {
+    font-size: 0.68rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  .stat-value {
+    font-size: 0.92rem;
+    font-weight: 500;
+    color: var(--text);
+  }
+
+  /* Forecast strip */
+  .forecast {
+    margin-top: 1.5rem;
+    padding-top: 1.2rem;
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .forecast-day {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .forecast-day .day {
+    font-size: 0.65rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+  }
+
+  .forecast-day .icon { font-size: 1.1rem; }
+
+  .forecast-day .hi { font-size: 0.8rem; font-weight: 500; color: var(--text); }
+  .forecast-day .lo { font-size: 0.72rem; color: var(--muted); }
+
+  /* Bottom bar */
+  .bottom-bar {
+    margin-top: 1.8rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    animation: fadeUp 0.6s 0.45s ease both;
+  }
+
+  .updated {
+    font-size: 0.72rem;
+    color: var(--muted);
+    letter-spacing: 0.04em;
+  }
+
+  .updated span {
+    display: inline-block;
+    width: 6px; height: 6px;
+    background: var(--accent-3);
+    border-radius: 50%;
+    margin-right: 6px;
+    vertical-align: middle;
+    box-shadow: 0 0 6px var(--accent-3);
+    animation: pulse 2s infinite;
+  }
+
+  .units-toggle {
+    font-size: 0.72rem;
+    color: var(--muted);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    display: flex;
+    gap: 0.6rem;
+  }
+
+  .units-toggle strong { color: var(--accent-1); }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(18px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes fadeDown {
+    from { opacity: 0; transform: translateY(-12px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50%       { opacity: 0.3; }
+  }
+
+  @media (max-width: 700px) {
+    .grid { grid-template-columns: 1fr; }
+    .logo { font-size: 1.8rem; }
+  }
+</style>
+</head>
+<body>
+
+<div class="wrapper">
+  <header>
+    <div class="logo">WEATHER<span>.</span>NOW</div>
+    <div class="date-time">
+      Thursday, March 5
+      <strong>Live Conditions</strong>
+    </div>
+  </header>
+
+  <div class="grid">
+
+    <!-- Mumbai -->
+    <div class="card">
+      <div class="card-top">
+        <div>
+          <div class="city">Mumbai</div>
+          <div class="country">Maharashtra · UTC+5:30</div>
+        </div>
+        <div class="condition-icon">🌤</div>
+      </div>
+      <div class="temp-row">
+        <div class="temp">33</div>
+        <div class="temp-unit">°C</div>
+      </div>
+      <div class="condition-label">Mostly Sunny</div>
+      <div class="divider"></div>
+      <div class="stats">
+        <div class="stat">
+          <span class="stat-label">Humidity</span>
+          <span class="stat-value">72%</span>
+        </div>
+        <div class="stat">
+          <span class="stat-label">Wind</span>
+          <span class="stat-value">19 km/h</span>
+        </div>
+        <div class="stat">
+          <span class="stat-label">Feels like</span>
+          <span class="stat-value">38°C</span>
+        </div>
+        <div class="stat">
+          <span class="stat-label">Visibility</span>
+          <span class="stat-value">9 km</span>
+        </div>
+      </div>
+      <div class="forecast">
+        <div class="forecast-day"><span class="day">Fri</span><span class="icon">☀️</span><span class="hi">34°</span><span class="lo">26°</span></div>
+        <div class="forecast-day"><span class="day">Sat</span><span class="icon">🌤</span><span class="hi">33°</span><span class="lo">25°</span></div>
+        <div class="forecast-day"><span class="day">Sun</span><span class="icon">⛅</span><span class="hi">32°</span><span class="lo">25°</span></div>
+        <div class="forecast-day"><span class="day">Mon</span><span class="icon">☀️</span><span class="hi">35°</span><span class="lo">27°</span></div>
+      </div>
+    </div>
+
+    <!-- Delhi -->
+    <div class="card">
+      <div class="card-top">
+        <div>
+          <div class="city">Delhi</div>
+          <div class="country">NCT · UTC+5:30</div>
+        </div>
+        <div class="condition-icon">🌫</div>
+      </div>
+      <div class="temp-row">
+        <div class="temp">19</div>
+        <div class="temp-unit">°C</div>
+      </div>
+      <div class="condition-label">Hazy / Foggy</div>
+      <div class="divider"></div>
+      <div class="stats">
+        <div class="stat">
+          <span class="stat-label">Humidity</span>
+          <span class="stat-value">58%</span>
+        </div>
+        <div class="stat">
+          <span class="stat-label">Wind</span>
+          <span class="stat-value">8 km/h</span>
+        </div>
+        <div class="stat">
+          <span class="stat-label">Feels like</span>
+          <span class="stat-value">17°C</span>
+        </div>
+        <div class="stat">
+          <span class="stat-label">Visibility</span>
+          <span class="stat-value">2 km</span>
+        </div>
+      </div>
+      <div class="forecast">
+        <div class="forecast-day"><span class="day">Fri</span><span class="icon">🌫</span><span class="hi">22°</span><span class="lo">11°</span></div>
+        <div class="forecast-day"><span class="day">Sat</span><span class="icon">⛅</span><span class="hi">25°</span><span class="lo">13°</span></div>
+        <div class="forecast-day"><span class="day">Sun</span><span class="icon">☀️</span><span class="hi">27°</span><span class="lo">14°</span></div>
+        <div class="forecast-day"><span class="day">Mon</span><span class="icon">☀️</span><span class="hi">28°</span><span class="lo">15°</span></div>
+      </div>
+    </div>
+
+    <!-- Chennai -->
+    <div class="card">
+      <div class="card-top">
+        <div>
+          <div class="city">Chennai</div>
+          <div class="country">Tamil Nadu · UTC+5:30</div>
+        </div>
+        <div class="condition-icon">🌦</div>
+      </div>
+      <div class="temp-row">
+        <div class="temp">36</div>
+        <div class="temp-unit">°C</div>
+      </div>
+      <div class="condition-label">Humid & Showery</div>
+      <div class="divider"></div>
+      <div class="stats">
+        <div class="stat">
+          <span class="stat-label">Humidity</span>
+          <span class="stat-value">88%</span>
+        </div>
+        <div class="stat">
+          <span class="stat-label">Wind</span>
+          <span class="stat-value">14 km/h</span>
+        </div>
+        <div class="stat">
+          <span class="stat-label">Feels like</span>
+          <span class="stat-value">43°C</span>
+        </div>
+        <div class="stat">
+          <span class="stat-label">Visibility</span>
+          <span class="stat-value">6 km</span>
+        </div>
+      </div>
+      <div class="forecast">
+        <div class="forecast-day"><span class="day">Fri</span><span class="icon">⛈</span><span class="hi">34°</span><span class="lo">27°</span></div>
+        <div class="forecast-day"><span class="day">Sat</span><span class="icon">🌦</span><span class="hi">35°</span><span class="lo">28°</span></div>
+        <div class="forecast-day"><span class="day">Sun</span><span class="icon">🌤</span><span class="hi">37°</span><span class="lo">28°</span></div>
+        <div class="forecast-day"><span class="day">Mon</span><span class="icon">☀️</span><span class="hi">38°</span><span class="lo">29°</span></div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="bottom-bar">
+    <div class="updated"><span></span>Static demo data — March 5, 2026</div>
+    <div class="units-toggle"><strong>°C</strong> · km/h</div>
+  </div>
+</div>
+
+</body>
+</html>
